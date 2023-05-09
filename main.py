@@ -1,67 +1,90 @@
-# Dependencies
-from kivymd.app import MDApp
-from kivymd.uix.dialog import MDDialog
-from kivymd.uix.boxlayout import MDBoxLayout
-from kivymd.uix.pickers import MDDatePicker
 from pushbullet import Pushbullet
 from kivymd.uix.list import TwoLineAvatarIconListItem, ILeftBodyTouch
+from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.selectioncontrol import MDCheckbox
-
+from kivymd.uix.boxlayout import MDBoxLayout
 from datetime import datetime
-
-# To be added after creating the database
 from database import Database
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
+from kivy.app import App
+from kivymd.app import MDApp
+from kivymd.uix.dialog import MDDialog
+from kivymd.uix.pickers import MDDatePicker
+import matplotlib.pyplot as plt
+
+Database_notes = Database()
 
 
-# Initialize db instance
-db = Database()
-
-class DialogContent(MDBoxLayout):
-    """OPENS A DIALOG BOX THAT GETS THE TASK FROM THE USER"""
-
+class TaskScreen(MDBoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.ids.date_text.text = str(datetime.now().strftime('%A %d %B %Y'))
 
-    def show_date_picker(self):
-        """Opens the date picker"""
-        date_dialog = MDDatePicker()
-        date_dialog.bind(on_save=self.on_save)
-        date_dialog.open()
+    def pick_date(self):
+        date = MDDatePicker()
+        date.bind(on_save=self.save)
+        date.open()
 
-    def on_save(self, instance, value, date_range):
+    def save(self, instance, value, date_range):
         date = value.strftime('%A %d %B %Y')
         self.ids.date_text.text = str(date)
 
 
-# After creating the database.py
-class ListItemWithCheckbox(TwoLineAvatarIconListItem):
-    '''Custom list item'''
-
+class ShowTasks(TwoLineAvatarIconListItem):
     def __init__(self, pk=None, **kwargs):
         super().__init__(**kwargs)
-        # state a pk which we shall use link the list items with the database primary keys
         self.pk = pk
 
-    def mark(self, check, the_list_item):
-        '''mark the task as complete or incomplete'''
-        if check.active == True:
-            the_list_item.text = '[s]' + the_list_item.text + '[/s]'
-            db.mark_task_as_complete(the_list_item.pk)  # here
+    def mark_task(self, state, tasks_list):
+        if state.active == True:
+            tasks_list.text = '[s]' + tasks_list.text + '[/s]'
+            Database_notes.mark_task_as_completed(tasks_list.pk)
         else:
-            the_list_item.text = str(db.mark_task_as_incomplete(the_list_item.pk))  # Here
+            tasks_list.text = str(Database_notes.mark_task_as_incompleted(tasks_list.pk))
 
-    def delete_item(self, the_list_item):
-        '''Delete the task'''
-        self.parent.remove_widget(the_list_item)
-        db.delete_task(the_list_item.pk)  # Here
+    def delete_task(self, tasks_list):
+        self.parent.remove_widget(tasks_list)
+        Database_notes.delete_task(tasks_list.pk)
 
 
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
-    '''Custom left container'''
+    ''' '''
 
 
-# Main App class
+values_xaxis = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+_, incompleted_tasks = Database_notes.get_tasks()
+
+cM, cT, cW, cTh, cF, cSa, cSu = 0, 0, 0, 0, 0, 0, 0
+
+for task in incompleted_tasks:
+    if task[2].split()[0] == 'Monday':
+        cM += 1
+    elif task[2].split()[0] == 'Tuesday':
+        cT += 1
+    elif task[2].split()[0] == 'Wednesday':
+        cW += 1
+    elif task[2].split()[0] == 'Thursday':
+        cTh += 1
+    elif task[2].split()[0] == 'Friday':
+        cF += 1
+    elif task[2].split()[0] == 'Saturday':
+        cSa += 1
+    elif task[2].split()[0] == 'Sunday':
+        cSu += 1
+values_yaxis = [cM, cT, cW, cTh, cF, cSa, cSu]
+
+fix, ax = plt.subplots()
+ax.bar(values_xaxis, values_yaxis)
+plt.ylabel('Number of tasks per day')
+
+
+class GraphCreationClass(App):
+    def build(self):
+        box = BoxLayout()
+        box.add_widget(FigureCanvasKivyAgg(plt.gcf()))
+        return box
+
+
 class MainApp(MDApp):
     task_list_dialog = None
 
@@ -72,65 +95,54 @@ class MainApp(MDApp):
         self.theme_cls.theme_style = "Light"
 
     def build(self):
-        # Setting theme to my favorite theme
-        # self.theme_cls.primary_palette = "Purple"
         self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "DeepOrange"
 
-    # Showing the task dialog to add tasks
     def show_task_dialog(self):
         if not self.task_list_dialog:
             self.task_list_dialog = MDDialog(
-                title="Create Task",
+                title="Create task",
                 type="custom",
-                content_cls=DialogContent(),
+                content_cls=TaskScreen(),
             )
 
         self.task_list_dialog.open()
 
     def on_start(self):
-        # Load the saved tasks and add them to the MDList widget when the application starts
-        try:
-            completed_tasks, incompleted_tasks = db.get_tasks()
+        completed_tasks, incompleted_tasks = Database_notes.get_tasks()
 
-            if incompleted_tasks != []:
-                for task in incompleted_tasks:
-                    add_task = ListItemWithCheckbox(pk=task[0], text=task[1], secondary_text=task[2])
-                    self.root.ids.container.add_widget(add_task)
+        if incompleted_tasks:
+            for task in incompleted_tasks:
+                add_task = ShowTasks(pk=task[0], text=task[1], secondary_text=task[2])
+                self.root.ids.container.add_widget(add_task)
 
-            if completed_tasks != []:
-                for task in completed_tasks:
-                    add_task = ListItemWithCheckbox(pk=task[0], text='[s]' + task[1] + '[/s]', secondary_text=task[2])
-                    add_task.ids.check.active = True
-                    self.root.ids.container.add_widget(add_task)
-        except Exception as e:
-            print(e)
-            pass
+        if completed_tasks:
+            for task in completed_tasks:
+                add_task = ShowTasks(pk=task[0], text='[s]' + task[1] + '[/s]', secondary_text=task[2])
+                add_task.ids.check.active = True
+                self.root.ids.container.add_widget(add_task)
 
     def close_dialog(self, *args):
         self.task_list_dialog.dismiss()
 
-    def add_task(self, task, task_date):
-        '''Add task to the list of tasks'''
-        # print(task.text, task_date)
-        created_task = db.create_task(task.text, task_date)
+    def add_task(self, task_to_be_added, task_date):
+        added_task = Database_notes.create_task(task_to_be_added.text, task_date)
 
-        # return the created task details and create a list item
         self.root.ids['container'].add_widget(
-            ListItemWithCheckbox(pk=created_task[0], text='[b]' + created_task[1] + '[/b]',
-                                 secondary_text=created_task[2]))
-        # task.text = ''
+            ShowTasks(pk=added_task[0], text='[b]' + added_task[1] + '[/b]', secondary_text=added_task[2]))
 
         pb = Pushbullet('o.4fQxfQlYbZ1IyVfgPGhWcWf12rLbpsfG')
-        push = pb.push_note("Task-ul a fost adaugat", "Acum viata ta este mai organizata!")
+        pushbullet_note = pb.push_note("Task-ul a fost adaugat", "Acum viata ta este mai organizata!")
 
-        device = pb.devices[0]
-        push = pb.push_sms(device, "+40751974985", f"Salut Emanuel, ai setat activitatea \"{task.text}\" pentru \"{task_date}\"."
-                                                   f" Poti sa adaugi activitatea in aplicatia de calendar a telefonului dand click pe textul subliniat. "
-                                                   f" Sa ai o zi productiva!")
-        self.theme_cls.primary_palette = "Red"
+        device_to_connect = pb.devices[0]
+        phone_number = '+40751974985'
+        push = pb.push_sms(device_to_connect, phone_number,
+                           f"Salut Emanuel, ai setat activitatea \"{task.text}\" pentru \"{task_date}\"."
+                           f" Poti sa adaugi activitatea in aplicatia de calendar a telefonului dand click pe textul "
+                           f"subliniat."
+                           f" Sa ai o zi productiva!")
 
 
 if __name__ == '__main__':
-    app = MainApp()
-    app.run()
+    GraphCreationClass().run()
+    MainApp().run()

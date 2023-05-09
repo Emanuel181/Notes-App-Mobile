@@ -1,5 +1,4 @@
 import os
-
 from kivy.lang import Builder
 from kivymd.app import MDApp
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -7,6 +6,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.button import MDFlatButton
 from kivy.storage.jsonstore import JsonStore
 from main import MainApp
+from main import GraphCreationClass
 
 helpstr = '''
 
@@ -15,15 +15,15 @@ ScreenManager:
     UsernameScreen:
     DOB:
     MainScreen:
-
-
+    
 <WelcomeScreen>:
     name : 'welcomescreen'
     MDLabel:
-        text:'Creeaza un cont'
+        text:'Primul tau pas spre o viata mai organizata!'
         font_style: 'H2'
         halign: 'center'
         pos_hint: {'center_y':0.65}
+        
     MDFloatingActionButton:
         icon:'account-plus-outline'
         md_bg_color:app.theme_cls.primary_color
@@ -32,10 +32,10 @@ ScreenManager:
         on_press:
             root.manager.current = 'usernamescreen'
             root.manager.transition.direction = 'left'
-
     MDProgressBar:
         value:30
         pos_hint:{'center_y' : 0.02}
+        
 <UsernameScreen>
     name:'usernamescreen'
     MDFloatingActionButton:
@@ -46,6 +46,7 @@ ScreenManager:
         on_press:
             root.manager.current = 'welcomescreen'
             root.manager.transition.direction = 'right'
+            
     MDFloatingActionButton:
         id:disabled_button
         disabled: True
@@ -56,6 +57,7 @@ ScreenManager:
         on_press:
             root.manager.current = 'dob'
             root.manager.transition.direction = 'left'
+            
     MDProgressBar:
         value:60
         pos_hint: {'center_y':0.02}
@@ -99,13 +101,13 @@ ScreenManager:
         pos_hint : {'center_x':0.5,'center_y':0.4}
         on_press: app.get_date()
 
-
     MDFloatingActionButton:
         icon:'arrow-left'
         md_bg_color:app.theme_cls.primary_color
         pos_hint: {'center_x':0.1,'center_y':0.1}
         user_font_size: '45sp'
         on_press: root.manager.current = 'usernamescreen'
+        
     MDFloatingActionButton:
         id: second_disabled
         disabled: False
@@ -123,7 +125,7 @@ ScreenManager:
         font_style : 'H2'
         halign : 'center'
         pos_hint : {'center_y':0.7}
-        
+
     MDFloatingActionButton:
         id: second_disabled
         disabled: False
@@ -132,7 +134,7 @@ ScreenManager:
         pos_hint: {'center_x':0.9,'center_y':0.1}
         user_font_size: '45sp'
         on_press: app.stop()
-        
+
 '''
 
 
@@ -188,7 +190,6 @@ class NewApp(MDApp):
         pass
 
     def get_date(self):
-        # Storing of DATA
         self.store.put('UserInfo', name=self.username_text)
         self.username_changer()
 
@@ -208,5 +209,5 @@ class NewApp(MDApp):
 
 if __name__ == "__main__":
     NewApp().run()
+    GraphCreationClass().run()
     MainApp().run()
-    os.remove('userProfile.json')

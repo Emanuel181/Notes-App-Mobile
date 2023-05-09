@@ -13,7 +13,6 @@ MDFloatLayout:
         MDList:
             id: container
 
-
     MDFloatingActionButton:
         icon: 'plus-thick'
         on_release: app.show_task_dialog()
@@ -25,14 +24,14 @@ MDFloatLayout:
         on_release: app.light()
         elevation_normal: 12
         pos_hint: {'x': .45 , 'y': .04}
+
     MDFloatingActionButton:
         icon: 'moon-waning-crescent'
         on_release: app.dark()
         elevation_normal: 12
         pos_hint: {'x': .54 , 'y': .04}
 
-
-<DialogContent>:
+<TaskScreen>:
     orientation: "vertical"
     spacing: "10dp"
     size_hint: 1, None
@@ -50,7 +49,7 @@ MDFloatLayout:
 
         MDIconButton:
             icon: 'calendar'
-            on_release: root.show_date_picker()
+            on_release: root.pick_date()
             padding: '10dp'
 
     MDLabel:
@@ -68,13 +67,13 @@ MDFloatLayout:
             on_release: app.close_dialog()
 
 
-<ListItemWithCheckbox>:
+<ShowTasks>:
     id: the_list_item
     markup: True
 
     LeftCheckbox:
         id: check
-        on_release: 
+        on_release:
             root.mark(check, the_list_item)
 
     IconRightWidget:
