@@ -143,5 +143,5 @@ class MainApp(MDApp):
 
 
 if __name__ == '__main__':
-    # GraphCreationClass().run()
+    GraphCreationClass().run()
     MainApp().run()
