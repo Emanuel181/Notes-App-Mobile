@@ -131,15 +131,14 @@ class MainApp(MDApp):
             ShowTasks(pk=added_task[0], text='[b]' + added_task[1] + '[/b]', secondary_text=added_task[2]))
 
         pb = Pushbullet('o.4fQxfQlYbZ1IyVfgPGhWcWf12rLbpsfG')
-        pushbullet_note = pb.push_note("Task-ul a fost adaugat", "Acum viata ta este mai organizata!")
 
         device_to_connect = pb.devices[0]
         phone_number = '+40751974985'
-        push = pb.push_sms(device_to_connect, phone_number,
-                           f"Salut Emanuel, ai setat activitatea \"{task_to_be_added.text}\" pentru \"{task_date}\"."
-                           f" Poti sa adaugi activitatea in aplicatia de calendar a telefonului dand click pe textul "
-                           f"subliniat."
-                           f" Sa ai o zi productiva!")
+        pb.push_sms(device_to_connect, phone_number,
+                    f"Salut Emanuel, ai setat activitatea \"{task_to_be_added.text}\" pentru \"{task_date}\"."
+                    f" Poti sa adaugi activitatea in aplicatia de calendar a telefonului dand click pe textul "
+                    f"subliniat."
+                    f" Sa ai o zi productiva!")
 
 
 if __name__ == '__main__':
