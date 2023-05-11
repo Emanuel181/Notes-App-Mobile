@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class NotesDatabase:
     def __init__(self):
         self.con = sqlite3.connect('notes.db')
@@ -30,15 +31,14 @@ class NotesDatabase:
         return created_task[-1]
 
     def get_tasks(self):
-        completed_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
-        incompleted_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 0").fetchall()
+        marked_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 1").fetchall()
+        unmarked_tasks = self.cursor.execute("SELECT id, task, due_date FROM tasks WHERE completed = 0").fetchall()
 
-        return completed_tasks, incompleted_tasks
+        return marked_tasks, unmarked_tasks
 
     def mark_task_as_completed(self, taskid):
         self.cursor.execute("UPDATE tasks SET completed=1 WHERE id=?", (taskid,))
         self.con.commit()
 
-
-    def close_db_connection(self):
+    def close_database_connection(self):
         self.con.close()
