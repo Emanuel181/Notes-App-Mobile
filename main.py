@@ -95,7 +95,6 @@ class MainApp(MDApp):
         self.theme_cls.theme_style = "Light"
 
     def build(self):
-        self.theme_cls.theme_style = "Light"
         self.theme_cls.primary_palette = "DeepOrange"
 
     def show_task_dialog(self):
@@ -113,12 +112,12 @@ class MainApp(MDApp):
 
         if incompleted_tasks:
             for task in incompleted_tasks:
-                add_task = ShowTasks(pk=task[0], text=task[1], secondary_text=task[2])
+                add_task = ShowTasks(pk=task[0], text=str(task[1]), secondary_text=task[2])
                 self.root.ids.container.add_widget(add_task)
 
         if completed_tasks:
             for task in completed_tasks:
-                add_task = ShowTasks(pk=task[0], text='[s]' + task[1] + '[/s]', secondary_text=task[2])
+                add_task = ShowTasks(pk=task[0], text='[s]' + str(task[1]) + '[/s]', secondary_text=task[2])
                 add_task.ids.check.active = True
                 self.root.ids.container.add_widget(add_task)
 
@@ -137,12 +136,12 @@ class MainApp(MDApp):
         device_to_connect = pb.devices[0]
         phone_number = '+40751974985'
         push = pb.push_sms(device_to_connect, phone_number,
-                           f"Salut Emanuel, ai setat activitatea \"{task.text}\" pentru \"{task_date}\"."
+                           f"Salut Emanuel, ai setat activitatea \"{task_to_be_added.text}\" pentru \"{task_date}\"."
                            f" Poti sa adaugi activitatea in aplicatia de calendar a telefonului dand click pe textul "
                            f"subliniat."
                            f" Sa ai o zi productiva!")
 
 
 if __name__ == '__main__':
-    GraphCreationClass().run()
+    # GraphCreationClass().run()
     MainApp().run()
