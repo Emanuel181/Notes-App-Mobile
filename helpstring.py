@@ -1,15 +1,15 @@
 helpingstring = '''
 
 ScreenManager:
-    WelcomeScreen:
-    EnterUsername:
+    WelcomeUserScreen:
+    EnterUserUsername:
     StoreUserClass:
     MainScreen:
 
-<WelcomeScreen>:
+<WelcomeUserScreen>:
     name: 'welcomescreen'
     MDLabel:
-        text:'Primul tau pas spre o viata mai organizata!'
+        text:'Primul tău pas spre o viață mai organizată!'
         font_style: 'H2'
         halign: 'center'
         pos_hint: {'center_y':0.65}
@@ -27,7 +27,7 @@ ScreenManager:
         value:30
         pos_hint:{'center_y' : 0.02}
 
-<EnterUsername>
+<EnterUserUsername>
     name:'usernamescreen'
     MDFloatingActionButton:
         icon: 'arrow-left'
@@ -71,30 +71,36 @@ ScreenManager:
         required : True
 
     MDFloatingActionButton:
+        id: add_user_button
         icon:'account-plus'
         md_bg_color:app.theme_cls.primary_color
         pos_hint: {'center_x':0.5,'center_y':0.35}
         user_font_size: '50sp'
-        on_press: app.check_for_valid_username()
+        on_press: 
+            app.check_for_valid_username()
+            app.turn_off_add_user_button()
 
 <StoreUserClass>:
     name:'storeuserclass'
     MDLabel:
-        text:'Esti la un pas de a folosi aplicatia!'
+        text:'Ești la un pas de a folosi aplicația!'
         font_style: 'H2'
         halign: 'center'
         pos_hint: {'center_y':0.75} 
 
     MDRaisedButton:
-        id:date_picker
-        text:'Apasa pentru a finaliza'
+        id:name_picker
+        text:'Apasă pentru a finaliza'
         user_font_size : '70sp'
         pos_hint : {'center_x':0.5,'center_y':0.4}
         on_press: 
-            app.turn_off_button()
+            app.turn_on_button()
             app.save_user_name()
+            app.turn_off_finalize_button()
+            app.turn_off_go_back()
 
     MDFloatingActionButton:
+        id: back_button
         icon:'arrow-left'
         md_bg_color:app.theme_cls.primary_color
         pos_hint: {'center_x':0.1,'center_y':0.1}

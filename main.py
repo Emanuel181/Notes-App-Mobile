@@ -4,7 +4,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.boxlayout import MDBoxLayout
 from datetime import datetime
-from database import Database
+from database import NotesDatabase
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 from kivy.app import App
 from kivymd.app import MDApp
@@ -12,7 +12,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.pickers import MDDatePicker
 import matplotlib.pyplot as plt
 
-Database_notes = Database()
+Database_notes = NotesDatabase()
 
 
 class TaskScreen(MDBoxLayout):
@@ -36,7 +36,7 @@ class ShowTasks(TwoLineAvatarIconListItem):
         self.pk = pk
 
     def mark_task(self, state, tasks_list):
-        if state.active == True:
+        if state.active:
             tasks_list.text = '[s]' + tasks_list.text + '[/s]'
             Database_notes.mark_task_as_completed(tasks_list.pk)
         else:
@@ -48,7 +48,7 @@ class ShowTasks(TwoLineAvatarIconListItem):
 
 
 class LeftCheckbox(ILeftBodyTouch, MDCheckbox):
-    ''' '''
+    """ """
 
 
 values_xaxis = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']

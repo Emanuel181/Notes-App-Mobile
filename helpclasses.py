@@ -1,11 +1,11 @@
 from kivy.uix.screenmanager import Screen
 
 
-class WelcomeScreen(Screen):
+class WelcomeUserScreen(Screen):
     pass
 
 
-class EnterUsername(Screen):
+class EnterUserUsername(Screen):
     pass
 
 
